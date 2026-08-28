@@ -10,6 +10,7 @@
     ['AcceptJellyfinToggles', 'boolean'],
     ['ShokoUserId', 'number'],
     ['ArmCacheHours', 'number'],
+    ['ArmServerUrl', 'string'],
     ['RequestTimeoutSeconds', 'number'],
     ['MaxJsonResponseBytes', 'number'],
   ];

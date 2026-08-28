@@ -74,11 +74,15 @@ Resolution order:
 
 1. Shoko episode-level AniList cross-reference (handles AniList season splits)
 2. Shoko series-level AniList IDs
-3. [ARM](https://github.com/kawaiioverflow/arm) via Shoko's MAL IDs
-   (`mal_id` → `anilist_id`)
+3. [arm-server](https://github.com/BeeeQueue/arm-server) by AniDB ID
+4. arm-server by Shoko's MAL IDs, only if the AniDB lookup misses
 
-ARM does not carry AniDB IDs. The AniDB → MAL hop is Shoko's. The catalog is
-cached under Shoko's data directory and refreshed weekly.
+kawaiioverflow/arm has no AniDB field. Shoko's MAL IDs are often missing or
+wrong. AniDB is what Shoko actually has. The plugin calls
+`GET /api/v2/ids?source=anidb&id={id}&include=anilist` on
+https://arm.haglund.dev and caches the result under Shoko's data directory
+for `ArmCacheHours` (default one week). MAL is the last hop, through the same
+API (`source=myanimelist`).
 
 ## API
 

@@ -39,7 +39,22 @@ public sealed class MappingTests
     }
 
     [Fact]
-    public void FallsBackToArmMalWhenShokoHasNoAnilistLink()
+    public void FallsBackToArmAnidbWhenShokoHasNoAnilistLink()
+    {
+        var user = CatalogFakes.User(1);
+        var series = CatalogFakes.Series(3, 10944, malIds: [5114]);
+        var episode = CatalogFakes.Episode(9, 7, series);
+        var data = CatalogFakes.UserData(user, episode, watched: true);
+        var arm = new InMemoryArmCatalog { AnidbMap = { [10944] = 20958 }, Map = { [5114] = 5114 } };
+
+        Assert.True(EpisodeMapper.TryMap(episode, user, data, arm, out var mapped, out _));
+        Assert.Equal(20958, mapped.AnilistId);
+        Assert.Equal(7, mapped.ProgressIndex);
+        Assert.Equal(MappingSource.ArmAnidb, mapped.Source);
+    }
+
+    [Fact]
+    public void FallsBackToArmMalWhenAnidbArmMisses()
     {
         var user = CatalogFakes.User(1);
         var series = CatalogFakes.Series(3, 10944, malIds: [5114]);

@@ -59,8 +59,18 @@ File/Scrobble, so `VideoReason` stays `None`.
 
 ## ARM
 
-https://github.com/kawaiioverflow/arm README: JSON rows are
-`{ mal_id?, anilist_id?, annict_id?, syobocal_tid? }`. No AniDB field.
-Database URL used by this plugin:
-`https://raw.githubusercontent.com/kawaiioverflow/arm/master/arm.json`.
-Weekly updates.
+https://github.com/kawaiioverflow/arm JSON rows are
+`{ mal_id?, anilist_id?, annict_id?, syobocal_tid? }`. No AniDB field. That
+dump is not used.
+
+https://github.com/BeeeQueue/arm-server maps AniDB. Live service:
+https://arm.haglund.dev
+OpenAPI: https://arm.haglund.dev/docs
+Data: Fribb/anime-lists, itself a merge of manami-project/anime-offline-database
+and Anime-Lists/anime-lists, plus manual combine rules.
+
+`GET /api/v2/ids?source=anidb&id={id}&include=anilist` returns
+`{"anilist":290}` or JSON `null` (not HTTP 404) on miss. MAL uses
+`source=myanimelist`. Sources on `/api/v2/ids` include `anidb`, `anilist`,
+`kitsu`, `myanimelist`. IMDB / TMDB / TVDB are separate endpoints because
+those IDs are one-to-many.

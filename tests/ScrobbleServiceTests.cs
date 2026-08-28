@@ -236,7 +236,29 @@ public sealed class ScrobbleServiceTests
     }
 
     [Fact]
-    public async Task ArmFallbackIsUsedWhenShokoHasOnlyMal()
+    public async Task ArmAnidbFallbackIsUsedWhenShokoHasNoAnilistLink()
+    {
+        var client = new FakeAniListClient
+        {
+            Media = { [20958] = new AniListMedia { Id = 20958, Episodes = 12, Format = "TV" } },
+        };
+        var arm = new InMemoryArmCatalog { AnidbMap = { [777] = 20958 }, Map = { [5114] = 5114 } };
+        var service = Create(AuthedStore(), client, arm: arm);
+        var user = CatalogFakes.User(1);
+        var series = CatalogFakes.Series(3, 777, malIds: [5114]);
+        var episode = CatalogFakes.Episode(9, 8, series);
+        var data = CatalogFakes.UserData(user, episode, true);
+
+        await service.HandleEventAsync(CatalogFakes.Event(user, episode, data, VideoUserDataSaveReason.PlaybackEnd, Watch), CancellationToken.None);
+
+        var saved = Assert.Single(client.Saved);
+        Assert.Equal(20958, saved.MediaId);
+        Assert.Equal(8, saved.Progress);
+        Assert.Equal(1, arm.WarmCalls);
+    }
+
+    [Fact]
+    public async Task ArmMalFallbackIsUsedWhenAnidbArmMisses()
     {
         var client = new FakeAniListClient
         {
@@ -254,7 +276,7 @@ public sealed class ScrobbleServiceTests
         var saved = Assert.Single(client.Saved);
         Assert.Equal(5114, saved.MediaId);
         Assert.Equal(8, saved.Progress);
-        Assert.Equal(1, arm.EnsureCalls);
+        Assert.Equal(1, arm.WarmCalls);
     }
 
     [Fact]

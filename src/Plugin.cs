@@ -44,6 +44,7 @@ public sealed class AniListScrobblePlugin : IPlugin, IPluginServiceRegistration,
         services.AddHttpClient("anilist-scrobble-arm", client =>
         {
             client.Timeout = Timeout.InfiniteTimeSpan;
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("shoko-anilist-scrobble");
         });
         services.AddHostedService<WatchHostedService>();
     }

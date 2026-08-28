@@ -9,7 +9,7 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <AssemblyName>Shoko.AniListScrobble</AssemblyName>
     <RootNamespace>Shoko.AniListScrobble</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <AssemblyVersion>$(Version).0</AssemblyVersion>
     <FileVersion>$(Version).0</FileVersion>
@@ -44,5 +44,6 @@
     <AssemblyMetadata Include="PackageProjectUrl" Value="$(PackageProjectUrl)" />
     <AssemblyMetadata Include="RuntimeIdentifier" Value="any" />
     <AssemblyMetadata Include="ReleaseChannel" Value="$(ReleaseChannel)" />
+    <InternalsVisibleTo Include="Shoko.AniListScrobble.Tests" />
   </ItemGroup>
 </Project>

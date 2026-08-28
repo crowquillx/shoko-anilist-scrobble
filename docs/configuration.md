@@ -17,7 +17,11 @@ Settings:
   toggles, default `true`. WebUI marks are still ignored.
 - `RequestTimeoutSeconds`: HTTP timeout, default `20`.
 - `MaxJsonResponseBytes`: bounded AniList JSON body, default `1048576`.
-- `ArmCacheHours`: ARM catalog cache lifetime, default `168` (one week).
+- `ArmCacheHours`: how long a resolved (or missing) ARM mapping is kept,
+  default `168` (one week).
+- `ArmServerUrl`: ARM lookup host, default `https://arm.haglund.dev`. Point
+  this at a self-hosted [arm-server](https://github.com/BeeeQueue/arm-server)
+  if you run one.
 
 The access token is stored in `<DataPath>/shoko-anilist-scrobble-state.json`
 with owner-only permissions when the OS supports them. Status, logs, and the

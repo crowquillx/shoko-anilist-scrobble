@@ -38,6 +38,9 @@ public sealed class AniListScrobbleOptions : ShokoConfiguration
     [RequiresRestart]
     public int ArmCacheHours { get; set; } = 168;
 
+    [RequiresRestart]
+    public string ArmServerUrl { get; set; } = ArmCatalog.DefaultBaseUrl;
+
     public void CopyFrom(AniListScrobbleOptions source)
     {
         Enabled = source.Enabled;
@@ -47,6 +50,7 @@ public sealed class AniListScrobbleOptions : ShokoConfiguration
         RequestTimeoutSeconds = source.RequestTimeoutSeconds;
         MaxJsonResponseBytes = source.MaxJsonResponseBytes;
         ArmCacheHours = source.ArmCacheHours;
+        ArmServerUrl = source.ArmServerUrl;
     }
 }
 

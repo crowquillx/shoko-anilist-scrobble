@@ -175,7 +175,8 @@ public sealed class AniListScrobbleService : IAniListScrobbleService
             return;
         }
 
-        await _arm.EnsureLoadedAsync(cancellationToken).ConfigureAwait(false);
+        var lookup = EpisodeMapper.LookupKeys(args.Episode);
+        await _arm.WarmAsync(lookup.AnidbAnimeId, lookup.MalIds, cancellationToken).ConfigureAwait(false);
         if (!EpisodeMapper.TryMap(args.Episode, args.User, args.UserData, _arm, out var mapped, out skip))
         {
             RecordSkip(skip);

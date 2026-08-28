@@ -115,10 +115,24 @@ public sealed class RecordingHandler : HttpMessageHandler
 
 public sealed class InMemoryArmCatalog : IArmCatalog
 {
+    public Dictionary<int, int> AnidbMap { get; } = [];
     public Dictionary<int, int> Map { get; } = [];
     public int EnsureCalls { get; private set; }
+    public int WarmCalls { get; private set; }
 
-    public bool TryResolve(IReadOnlyList<int> malIds, out int anilistId)
+    public bool TryResolveAnidb(int anidbId, out int anilistId)
+    {
+        anilistId = 0;
+        if (anidbId > 0 && AnidbMap.TryGetValue(anidbId, out var id))
+        {
+            anilistId = id;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool TryResolveMal(IReadOnlyList<int> malIds, out int anilistId)
     {
         anilistId = 0;
         foreach (var malId in malIds)
@@ -131,6 +145,12 @@ public sealed class InMemoryArmCatalog : IArmCatalog
         }
 
         return false;
+    }
+
+    public Task WarmAsync(int anidbId, IReadOnlyList<int> malIds, CancellationToken cancellationToken)
+    {
+        WarmCalls++;
+        return Task.CompletedTask;
     }
 
     public Task EnsureLoadedAsync(CancellationToken cancellationToken)

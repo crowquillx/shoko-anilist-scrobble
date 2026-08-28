@@ -12,8 +12,11 @@ public enum MappingSource
     None,
     ShokoEpisode,
     ShokoSeries,
+    ArmAnidb,
     ArmMal,
 }
+
+public readonly record struct ArmLookup(int AnidbAnimeId, IReadOnlyList<int> MalIds);
 
 public sealed record MappedWatch(
     int UserId,
@@ -92,7 +95,12 @@ public static class EpisodeMapper
             anilistId = seriesIds[0];
             source = MappingSource.ShokoSeries;
         }
-        else if (arm.TryResolve(malIds, out var armId))
+        else if (arm.TryResolveAnidb(anidbId, out var armId))
+        {
+            anilistId = armId;
+            source = MappingSource.ArmAnidb;
+        }
+        else if (arm.TryResolveMal(malIds, out armId))
         {
             anilistId = armId;
             source = MappingSource.ArmMal;
@@ -114,6 +122,14 @@ public static class EpisodeMapper
             Source: source,
             MalIds: malIds);
         return true;
+    }
+
+    public static ArmLookup LookupKeys(IShokoEpisode? episode)
+    {
+        var series = episode?.Series ?? episode?.AnidbEpisode?.Series?.ShokoSeries.FirstOrDefault();
+        if (series is null)
+            return new ArmLookup(0, []);
+        return new ArmLookup(series.AnidbAnimeID, CollectInts(series.AnidbAnime?.MalIDs));
     }
 
     public static string ScrobbledKey(int userId, int episodeId) => $"{userId}:{episodeId}";
