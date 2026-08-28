@@ -27,6 +27,22 @@
           "checksum": "sha256:03f01dfe70ac73430241a0a0ec4f9fb3b3e112ea6742511c2d8a84b4bd86b384"
         }
       ]
+    },
+    {
+      "version": "1.0.1",
+      "tag": "v1.0.1",
+      "source_revision": "2a48b7f5cb857852c5edbcc76c0a0676aceb4923",
+      "released_at": "2026-08-27T20:32:17-06:00",
+      "channel": "Stable",
+      "release_notes": "## Shoko AniList Scrobble 1.0.1\n\nPortable `any` plugin archive. Add this repository to Shoko with:\n\n`https://raw.githubusercontent.com/crowquillx/shoko-anilist-scrobble/metadata/manifest.json`\n\nThe persistent metadata feed is updated on the `metadata` branch after this release.\n\n### Changes\n\n- 2a48b7f Reject stale packages without assuming the project is still 1.0.0.\n- 9325217 Map AniList IDs through arm-server by AniDB.\n### Artifacts\n\n- `Shoko.AniListScrobble-1.0.1-any.zip`, plugin archive\n- `manifest.json`, Shoko repository manifest\n",
+      "archives": [
+        {
+          "runtime": "any",
+          "abstraction": "6.0.0",
+          "url": "https://github.com/crowquillx/shoko-anilist-scrobble/releases/download/v1.0.1/Shoko.AniListScrobble-1.0.1-any.zip",
+          "checksum": "sha256:03207e40dfe536b03bd8d2f391328ef568d4495d60bf5af753e3840ffbc5247b"
+        }
+      ]
     }
   ],
   "type": "package",
