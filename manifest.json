@@ -1,0 +1,35 @@
+{
+  "id": "a3e8c1f0-4b7d-4e9a-9c2f-6d1b8a5e3f70",
+  "name": "Shoko AniList Scrobble",
+  "overview": "Scrobble Jellyfin-originated episode watches from Shoko to AniList. Not a history sync.",
+  "authors": "AniList Scrobble contributors",
+  "tags": [
+    "shoko",
+    "plugin",
+    "anilist",
+    "anime",
+    "scrobble",
+    "jellyfin"
+  ],
+  "releases": [
+    {
+      "version": "1.0.0",
+      "tag": "v1.0.0",
+      "source_revision": "cebcf466b5a69663ed06e398ba38a55343ab0242",
+      "released_at": "2026-08-27T20:20:25-06:00",
+      "channel": "Stable",
+      "release_notes": "## Shoko AniList Scrobble 1.0.0\n\nPortable `any` plugin archive. Add this repository to Shoko with:\n\n`https://raw.githubusercontent.com/crowquillx/shoko-anilist-scrobble/metadata/manifest.json`\n\nThe persistent metadata feed is updated on the `metadata` branch after this release.\n\n### Changes\n\n- cebcf46 Add an AniList scrobble plugin for daily Shoko.\n### Artifacts\n\n- `Shoko.AniListScrobble-1.0.0-any.zip`, plugin archive\n- `manifest.json`, Shoko repository manifest\n",
+      "archives": [
+        {
+          "runtime": "any",
+          "abstraction": "6.0.0",
+          "url": "https://github.com/crowquillx/shoko-anilist-scrobble/releases/download/v1.0.0/Shoko.AniListScrobble-1.0.0-any.zip",
+          "checksum": "sha256:03f01dfe70ac73430241a0a0ec4f9fb3b3e112ea6742511c2d8a84b4bd86b384"
+        }
+      ]
+    }
+  ],
+  "type": "package",
+  "repository_url": "https://github.com/crowquillx/shoko-anilist-scrobble",
+  "homepage_url": "https://github.com/crowquillx/shoko-anilist-scrobble"
+}
