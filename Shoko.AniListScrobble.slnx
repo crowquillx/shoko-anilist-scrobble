@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Shoko.AniListScrobble.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Shoko.AniListScrobble.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <title>Shoko AniList Scrobble</title>
+    <link rel="stylesheet" href="/api/v3/Plugin/AniListScrobble/ui/style.css">
+    <script src="/api/v3/Plugin/AniListScrobble/ui/script.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="page-header">
+        <p class="eyebrow">Shoko plugin</p>
+        <h1>AniList Scrobble</h1>
+        <p>Forward Jellyfin watches to AniList as they happen. Manual WebUI marks and library history stay off AniList.</p>
+      </header>
+
+      <div id="page-message" class="message" role="status" aria-live="polite" aria-atomic="true"></div>
+
+      <section class="panel" aria-labelledby="status-heading">
+        <div class="panel-heading">
+          <div>
+            <h2 id="status-heading">Scrobble status</h2>
+            <p id="status-summary">Loading AniList status.</p>
+          </div>
+          <button id="refresh-button" class="secondary-button" type="button">Refresh</button>
+        </div>
+        <ul id="capabilities-list" class="status-list"></ul>
+        <dl id="status-details" class="status-details"></dl>
+      </section>
+
+      <section class="panel" aria-labelledby="account-heading">
+        <div class="panel-heading">
+          <div>
+            <h2 id="account-heading">AniList account</h2>
+            <p>Create an AniList API client with redirect URL https://anilist.co/api/v2/oauth/pin. Save the client ID below, restart Shoko, then authorize and paste the token.</p>
+          </div>
+        </div>
+        <p id="auth-instructions" class="operational-note">No token has been saved on this page.</p>
+        <label class="field">
+          <span>Access token</span>
+          <input id="access-token" name="access-token" type="password" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="form-actions">
+          <button id="authorize-button" class="secondary-button" type="button">Open AniList authorize</button>
+          <button id="connect-button" class="primary-button" type="button">Save token</button>
+          <button id="disconnect-button" class="secondary-button" type="button">Disconnect</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="configuration-heading">
+        <div class="panel-heading">
+          <div>
+            <h2 id="configuration-heading">Configuration</h2>
+            <p>Changes use Shoko's official configuration API.</p>
+          </div>
+        </div>
+        <p id="restart-note" class="restart-note">
+          Settings require a Shoko restart. Saving an AniList token does not.
+        </p>
+        <form id="configuration-form" novalidate aria-busy="false">
+          <fieldset>
+            <legend>AniList API</legend>
+            <div class="form-grid">
+              <div class="field">
+                <label for="ClientId">AniList client ID</label>
+                <input id="ClientId" name="ClientId" type="password" autocomplete="new-password" aria-describedby="ClientId-help">
+                <small id="ClientId-help">Leave blank to keep the stored client ID.</small>
+                <label class="checkbox-field compact">
+                  <input id="ClientIdClear" name="ClientIdClear" type="checkbox">
+                  <span>Clear stored client ID</span>
+                </label>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Scrobble behavior</legend>
+            <div class="form-grid">
+              <label class="field checkbox-field">
+                <input id="Enabled" name="Enabled" type="checkbox">
+                <span>Enable AniList scrobble</span>
+              </label>
+              <label class="field checkbox-field">
+                <input id="AcceptJellyfinToggles" name="AcceptJellyfinToggles" type="checkbox">
+                <span>Also scrobble Jellyfin watched toggles</span>
+              </label>
+              <label class="field">
+                <span>Shoko user ID (0 = first admin)</span>
+                <input id="ShokoUserId" name="ShokoUserId" type="number" step="1" min="0">
+              </label>
+              <label class="field">
+                <span>ARM cache hours</span>
+                <input id="ArmCacheHours" name="ArmCacheHours" type="number" step="1" min="1">
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Request limits</legend>
+            <div class="form-grid">
+              <label class="field">
+                <span>Request timeout (seconds)</span>
+                <input id="RequestTimeoutSeconds" name="RequestTimeoutSeconds" type="number" step="1" min="1">
+              </label>
+              <label class="field">
+                <span>Maximum JSON response (bytes)</span>
+                <input id="MaxJsonResponseBytes" name="MaxJsonResponseBytes" type="number" step="1" min="1024">
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-actions">
+            <button id="save-button" class="primary-button" type="submit">Save configuration</button>
+            <span id="save-message" role="status" aria-live="polite" aria-atomic="true"></span>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

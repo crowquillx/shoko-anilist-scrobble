@@ -1,0 +1,239 @@
+# Build, verify, and publish a release on v* semantic version tags.
+#
+# Tag rules:
+#   vMAJOR.MINOR.PATCH        -> Stable release (channel "Stable")
+#   vMAJOR.MINOR.PATCH-dev.N  -> Dev release (channel "Dev", prerelease)
+#
+# Add the repository to Shoko with:
+#   https://raw.githubusercontent.com/crowquillx/shoko-anilist-scrobble/metadata/manifest.json
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (for manual runs), e.g. v1.0.0.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Validate tag input
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          tag="${{ inputs.tag }}"
+          if [[ -z "$tag" ]]; then
+            echo "::error::workflow_dispatch requires a tag input (e.g. v1.0.0)."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || format('refs/tags/{0}', inputs.tag) }}
+          fetch-depth: 0
+
+      - name: Resolve release metadata
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == 'push' ]]; then
+            tag="${{ github.ref_name }}"
+          else
+            tag="${{ inputs.tag }}"
+          fi
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-dev\.[0-9]+)?$ ]]; then
+            echo "::error::invalid release tag '$tag'. Expected vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-dev.N."
+            exit 1
+          fi
+          sha="$(git rev-parse "$tag^{commit}")"
+          version="${tag#v}"
+          if [[ "$tag" == *-dev.* ]]; then channel="Dev"; else channel="Stable"; fi
+          released_at="$(git log -1 --format=%cI "$tag")"
+          prev="$(git describe --tags --abbrev=0 --match 'v*' "$tag^" 2>/dev/null || true)"
+          {
+            echo "tag=$tag"
+            echo "version=$version"
+            echo "channel=$channel"
+            echo "sha=$sha"
+            echo "released_at=$released_at"
+            echo "prev_tag=$prev"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', '**/packages.lock.json') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Generate release notes
+        id: notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.resolve.outputs.tag }}"
+          version="${{ steps.resolve.outputs.version }}"
+          prev="${{ steps.resolve.outputs.prev_tag }}"
+          {
+            echo "## Shoko AniList Scrobble $version"
+            echo
+            echo "Portable \`any\` plugin archive. Add this repository to Shoko with:"
+            echo
+            echo "\`https://raw.githubusercontent.com/${{ github.repository }}/metadata/manifest.json\`"
+            echo
+            echo "The persistent metadata feed is updated on the \`metadata\` branch after this release."
+            echo
+            echo "### Changes"
+            echo
+            if [[ -n "$prev" ]]; then
+              git log --no-merges --pretty=format:'- %h %s' "$prev..$tag"
+            else
+              git log --no-merges --pretty=format:'- %h %s' "$tag"
+            fi
+            echo
+            echo "### Artifacts"
+            echo
+            echo "- \`Shoko.AniListScrobble-$version-any.zip\`, plugin archive"
+            echo "- \`manifest.json\`, Shoko repository manifest"
+          } > release-notes.md
+
+      - name: Package plugin
+        env:
+          REPOSITORY_URL: https://github.com/${{ github.repository }}
+          HOMEPAGE_URL: https://github.com/${{ github.repository }}
+          TAG: ${{ steps.resolve.outputs.tag }}
+          SOURCE_REVISION: ${{ steps.resolve.outputs.sha }}
+          RELEASED_AT: ${{ steps.resolve.outputs.released_at }}
+          RELEASE_NOTES_FILE: ${{ github.workspace }}/release-notes.md
+        run: bash build/package.sh Release
+
+      - name: Verify package
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip_archives=(artifacts/Shoko.AniListScrobble-*.zip)
+          zip_archive="${zip_archives[0]}"
+          bash build/verify-package.sh "$zip_archive" artifacts/manifest.json
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.resolve.outputs.tag }}"
+          version="${{ steps.resolve.outputs.version }}"
+          channel="${{ steps.resolve.outputs.channel }}"
+          flags=()
+          if [[ "$channel" == 'Dev' ]]; then
+            flags+=(--prerelease)
+          fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --title "Shoko AniList Scrobble $version" --notes-file release-notes.md "${flags[@]}"
+          else
+            gh release create "$tag" \
+              --target "${{ steps.resolve.outputs.sha }}" \
+              --title "Shoko AniList Scrobble $version" \
+              --notes-file release-notes.md \
+              "${flags[@]}"
+          fi
+          gh release upload "$tag" \
+            artifacts/Shoko.AniListScrobble-*.zip \
+            artifacts/Shoko.AniListScrobble-*.zip.sha256 \
+            artifacts/manifest.json \
+            --clobber
+
+      - name: Publish persistent metadata feed
+        shell: bash
+        run: |
+          set -euo pipefail
+          metadata_dir="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$metadata_dir" >/dev/null 2>&1 || true
+            rm -rf "$metadata_dir"
+          }
+          trap cleanup EXIT
+
+          metadata_ref='refs/remotes/origin/metadata'
+          if git ls-remote --exit-code origin refs/heads/metadata >/dev/null 2>&1; then
+            git fetch --no-tags origin "refs/heads/metadata:$metadata_ref"
+            base_sha="$(git rev-parse "$metadata_ref")"
+            git worktree add --detach "$metadata_dir" "$metadata_ref"
+            existing_manifest="$metadata_dir/manifest.json"
+          else
+            base_sha=""
+            git worktree add --detach "$metadata_dir" HEAD
+            (
+              cd "$metadata_dir"
+              git switch --orphan metadata-publish
+              git clean -fdx
+            )
+            existing_manifest='-'
+          fi
+
+          bash build/update-metadata.sh \
+            "$existing_manifest" \
+            artifacts/manifest.json \
+            "$metadata_dir/manifest.json"
+          bash build/verify-manifest.sh "$metadata_dir/manifest.json"
+
+          tag="${{ steps.resolve.outputs.tag }}"
+          jq -e --arg tag "$tag" \
+            '[.releases[] | select(.tag == $tag)] | length == 1' \
+            "$metadata_dir/manifest.json" >/dev/null
+
+          git -C "$metadata_dir" config user.name 'github-actions[bot]'
+          git -C "$metadata_dir" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$metadata_dir" add manifest.json
+          if git -C "$metadata_dir" diff --cached --quiet; then
+            echo "Metadata feed already contains $tag; no commit is required."
+            exit 0
+          fi
+          git -C "$metadata_dir" commit -m "chore: update metadata feed for $tag"
+
+          if [[ -n "$base_sha" ]]; then
+            git -C "$metadata_dir" push \
+              --force-with-lease="refs/heads/metadata:$base_sha" \
+              origin HEAD:refs/heads/metadata
+          else
+            git -C "$metadata_dir" push \
+              --force-with-lease=refs/heads/metadata: \
+              origin HEAD:refs/heads/metadata
+          fi
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: shoko-anilist-scrobble-${{ steps.resolve.outputs.tag }}
+          path: |
+            artifacts/Shoko.AniListScrobble-*.zip
+            artifacts/Shoko.AniListScrobble-*.zip.sha256
+            artifacts/manifest.json
+          if-no-files-found: error
+          retention-days: 30

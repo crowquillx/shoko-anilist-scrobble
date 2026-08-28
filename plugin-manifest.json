@@ -1,0 +1,8 @@
+{
+  "id": "a3e8c1f0-4b7d-4e9a-9c2f-6d1b8a5e3f70",
+  "name": "Shoko AniList Scrobble",
+  "overview": "Scrobble Jellyfin-originated episode watches from Shoko to AniList. Not a history sync.",
+  "authors": "AniList Scrobble contributors",
+  "tags": ["shoko", "plugin", "anilist", "anime", "scrobble", "jellyfin"],
+  "releases": []
+}

@@ -1,0 +1,10 @@
+bin/
+obj/
+artifacts/
+.vscode/
+.idea/
+*.user
+*.suo
+*.nupkg
+TestResults/
+.nuget/

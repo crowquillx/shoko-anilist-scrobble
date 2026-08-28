@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <AssemblyName>Shoko.AniListScrobble</AssemblyName>
+    <RootNamespace>Shoko.AniListScrobble</RootNamespace>
+    <Version>1.0.0</Version>
+    <PackageVersion>$(Version)</PackageVersion>
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <FileVersion>$(Version).0</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <ReleaseChannel Condition="'$(ReleaseChannel)' == ''">Stable</ReleaseChannel>
+    <PackageId>Shoko.AniListScrobble</PackageId>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <Authors>AniList Scrobble contributors</Authors>
+    <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/crowquillx/shoko-anilist-scrobble</RepositoryUrl>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">$(RepositoryUrl)</PackageProjectUrl>
+    <PackageTags>shoko,plugin,anilist,anime,scrobble,jellyfin</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.0" ExcludeAssets="runtime" />
+    <PackageReference Include="Shoko.Abstractions" Version="6.0.0-alpha.77" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Ui/anilist-scrobble.html" LogicalName="Shoko.AniListScrobble.Ui.anilist-scrobble.html" />
+    <EmbeddedResource Include="Ui/anilist-scrobble.css" LogicalName="Shoko.AniListScrobble.Ui.anilist-scrobble.css" />
+    <EmbeddedResource Include="Ui/anilist-scrobble.js" LogicalName="Shoko.AniListScrobble.Ui.anilist-scrobble.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="PackageID" Value="a3e8c1f0-4b7d-4e9a-9c2f-6d1b8a5e3f70" />
+    <AssemblyMetadata Include="PackageName" Value="Shoko AniList Scrobble" />
+    <AssemblyMetadata Include="PackageOverview" Value="Scrobble Jellyfin-originated episode watches from Shoko to AniList. Not a history sync." />
+    <AssemblyMetadata Include="PackageTags" Value="shoko,plugin,anilist,anime,scrobble,jellyfin" />
+    <AssemblyMetadata Include="RepositoryUrl" Value="$(RepositoryUrl)" />
+    <AssemblyMetadata Include="PackageProjectUrl" Value="$(PackageProjectUrl)" />
+    <AssemblyMetadata Include="RuntimeIdentifier" Value="any" />
+    <AssemblyMetadata Include="ReleaseChannel" Value="$(ReleaseChannel)" />
+  </ItemGroup>
+</Project>
